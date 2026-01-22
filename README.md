@@ -29,7 +29,7 @@ Lineage, cataloging, access control, auditability.
 9. Serve data
 Power BI, APIs, ML models, dashboards.
 
-If you know the implication and working of all these steps you have good knowledge base!
-
-11. Ensure reliability
+10. Ensure reliability
 SLAs, SLIs, SLOs, fail‑fast behavior, alerts.
+
+If you know the implication and working of all these steps you have good knowledge base!
