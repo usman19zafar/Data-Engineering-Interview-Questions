@@ -18,7 +18,7 @@ CSV     → no schema inside → must define schema
 JSON    → semi-structured → schema recommended
 Parquet → schema embedded → no schema needed
 2️⃣ ASCII Comparison Table — CSV vs JSON vs Parquet
-Code
+```Code
 +-----------+-------------------------+---------------------------+------------------------------+
 | Format    | Schema Present?         | Ingestion Complexity      | Schema Work Required?        |
 +-----------+-------------------------+---------------------------+------------------------------+
@@ -26,6 +26,7 @@ Code
 | JSON      | ⚠️ Partial (nested)     | Medium                    | ✔ Yes (recommended)          |
 | Parquet   | ✔ Yes (fully embedded)  | Low                       | ❌ No (optional)             |
 +-----------+-------------------------+---------------------------+------------------------------+
+```
 3️⃣ What Changes in Ingestion?
 A. CSV → your current case
 Read command:
@@ -84,7 +85,7 @@ define nested schema manually
 validate structure
 
 Example nested schema:
-python
+```python
 StructType([
     StructField("driverId", IntegerType()),
     StructField("name", StructType([
@@ -92,6 +93,7 @@ StructType([
         StructField("surname", StringType())
     ]))
 ])
+```
 Subtractions:
 no need for .option("header", True)
 
@@ -101,8 +103,9 @@ C. Parquet
 Parquet is columnar and self‑describing.
 
 Read command:
-python
+```python
 spark.read.parquet(path)
+```
 What changes:
 schema is already embedded
 
@@ -134,7 +137,7 @@ Additions:
 nothing — Parquet is ready for Silver
 
 4️⃣ ASCII Flow Diagram — How Ingestion Changes by Format
-Code
+```Code
 CSV INGESTION
     │
     ├── read CSV
@@ -143,19 +146,22 @@ CSV INGESTION
     ├── inferSchema (optional)
     ├── define StructType schema
     └── read with schema  → Silver ready
-Code
+```
+```Code
 JSON INGESTION
     │
     ├── read JSON
     ├── inspect nested schema
     ├── define nested StructType schema
     └── read with schema  → Silver ready
-Code
+```
+```Code
 PARQUET INGESTION
     │
     └── read Parquet  → Silver ready
-5️⃣ What Additional or Subtracted Steps Occur?
-Code
+```
+5 What Additional or Subtracted Steps Occur?
+```Code
 +----------------------+----------------------+----------------------+
 | Step                 | CSV                  | JSON                 |
 +----------------------+----------------------+----------------------+
@@ -166,7 +172,8 @@ Code
 | type casting         | ✔ required           | ✔ sometimes          |
 | flattening           | ❌ none              | ✔ often needed       |
 +----------------------+----------------------+----------------------+
-Code
+```
+```Code
 +----------------------+----------------------+
 | Step                 | Parquet              |
 +----------------------+----------------------+
@@ -177,6 +184,7 @@ Code
 | type casting         | ❌ not needed        |
 | flattening           | ✔ only if needed     |
 +----------------------+----------------------+
+```
 6️⃣ Two‑Word Logic for Each Format
 CSV: Define schema  
 JSON: Handle nesting  
