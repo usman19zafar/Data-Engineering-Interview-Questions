@@ -258,3 +258,39 @@ IF file is nested → multiLine=True → flatten
 IF file is corrupted → fix RAW first
 This is the entire universe of JSON ingestion patterns for RAW → Bronze.
 ```
+```code
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| JSON STYLE           | RAW CHARACTERISTICS           | SPARK READ STRATEGY           | BRONZE CONVERSION STRATEGY                    |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 1. NDJSON            | One JSON object per line      | json("path")                  | Direct load → df                              |
+| (Newline JSON)       | No brackets                   | multiLine = False (default)   | Validate with read.text()                     |
+|                      | Streaming/log format          |                               |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 2. JSON Array        | Starts with [ and ends with ] | option("multiLine", True)     | Direct load → df                              |
+| (Array of objects)   | Multi-line                    | json("path")                  |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 3. Pretty JSON       | One object, multi-line        | option("multiLine", True)     | Produces 1 row → flatten if needed            |
+| (Indented object)    | No array brackets             | json("path")                  |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 4. Mixed JSON        | NDJSON + Arrays mixed         | Must normalize first          | Filter valid lines → treat as NDJSON          |
+| (Invalid mix)        | Not Spark-readable            | read.text() + filter          | json(cleaned_rdd)                             |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 5. JSON w/ Comments  | Contains // or /* */ comments | Must strip comments           | Clean → option("multiLine", True) → json()    |
+| (Non-standard)       | Invalid JSON                  | read.text() + regex           |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 6. Trailing Commas   | Last field ends with comma    | Must remove commas            | Clean → option("multiLine", True) → json()    |
+| (Non-standard)       | Invalid JSON                  | regex_replace                 |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 7. NDJSON w/ Blanks  | Empty lines between objects   | Filter empty lines            | clean = raw.filter(length>0) → json(clean)    |
+| (Common in logs)     | Spark errors on blanks        |                               |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 8. Nested JSON       | Arrays inside objects         | option("multiLine", True)     | explode(), select(), flatten                  |
+| (Embedded arrays)    | Multi-line                    | json("path")                  |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 9. Deeply Nested     | Multi-level hierarchy         | option("multiLine", True)     | df.select("a.*", "a.b.*")                     |
+| (Hierarchical JSON)  | Multi-line                    | json("path")                  | Flatten to Bronze schema                      |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+| 10. Corrupted JSON   | Missing braces, broken lines  | Cannot ingest directly        | Manual fix or regex cleanup required          |
+| (Unusable RAW)       | Spark will fail               |                               |                                               |
++----------------------+-------------------------------+-------------------------------+-----------------------------------------------+
+```
