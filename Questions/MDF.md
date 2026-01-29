@@ -1,3 +1,4 @@
+Mapping Data flow in Azure Factory.
 As a tool
 
 ADF Mapping Data Flow is a managed, visual transformation tool inside Azure Data Factory / Synapse Pipelines.
