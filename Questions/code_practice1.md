@@ -1,10 +1,11 @@
 1. READ RAW FILE
-python
+```python
 df_raw = (
     spark.read
         .text("<file_location>Customers.csv")
         .withColumnRenamed("value", "raw_line")
 )
+```
 Technical Highlights
 spark.read.text()
 
@@ -21,7 +22,7 @@ Renames the default column to something meaningful.
 Keeps the pipeline readable.
 
 2. NORMALIZE DELIMITERS → ALWAYS SEMICOLON
-python
+```python
 df_norm = (
     df_raw
         .withColumn("step1", F.regexp_replace("raw_line", r"\t", ";"))
@@ -33,6 +34,7 @@ df_norm = (
         .withColumn("clean_line", F.trim("step6"))
         .select("clean_line")
 )
+```
 Technical Highlights
 regexp_replace
 
@@ -71,20 +73,21 @@ Removes leading/trailing whitespace.
 This block normalizes any corrupted delimiter scenario.
 
 3. SPLIT INTO FIELDS SAFELY
-python
+```python
 df_split = df_norm.withColumn("fields", F.split("clean_line", ";"))
 Technical Highlights
 split()
-
+```
 Converts the cleaned line into an array of fields.
 
 Avoids schema inference errors.
 
-python
+```python
 df_final = df_split.select(
     F.expr("get(fields, 0)").alias("customer_id"),
     ...
 )
+```
 Technical Highlights
 F.expr("get(fields, n)")
 
@@ -92,14 +95,16 @@ Safely extracts array elements.
 
 Avoids out-of-bound errors (returns null instead).
 
-python
+```python
 df_final = df_final.filter(F.col("customer_id") != "customer_id")
+```
 Technical Highlights
 Removes header row by comparing the literal string "customer_id".
 
 4. CLEAN + NORMALIZE ALL COLUMNS
-python
+```python
 .withColumn("email_clean", F.lower(F.trim(F.regexp_replace("email", r"[^A-Za-z0-9@._-]", ""))))
+```
 Technical Highlights
 regexp_replace removes illegal characters.
 
@@ -107,16 +112,19 @@ trim removes whitespace.
 
 lower standardizes case.
 
-python
+```python
 .withColumn("phone_clean", F.regexp_replace("phone", r"[^0-9]", ""))
+```
 Strips everything except digits.
 
-python
+```python
 .withColumn("country_clean", F.upper(F.trim("country")))
+```
 Standardizes country codes.
 
-python
+```python
 .withColumn("status_clean", F.lower(F.trim("status")))
+```
 Normalizes status values.
 
 Multi-format date parsing
