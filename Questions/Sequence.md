@@ -1,3 +1,4 @@
+```code
 INGRESS
   1. Connect to source
   2. Extract data
@@ -37,3 +38,4 @@ EGRESS
  26. Apply security/masking
  27. Deliver to external systems
  28. Log + monitor delivery
+```
