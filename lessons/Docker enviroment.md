@@ -1,5 +1,15 @@
 full architecture diagram
 
+MinIO → S3‑compatible storage
+
+Spark → compute engine
+
+Postgres → metadata
+
+Kafka → streaming
+
+Airflow → orchestration
+
 ```code
                           ┌──────────────────────────────────────────┐
                           │              AIRFLOW (DAGs)              │
